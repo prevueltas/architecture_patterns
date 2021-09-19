@@ -25,7 +25,7 @@ def order(customer):
 
 @pytest.fixture
 def line(order):
-    return OrderLine('TABLE-NIZA', 5, order)
+    return OrderLine('ORDER-REFERENCE', 'TABLE-NIZA', 5)
 
 
 @pytest.fixture

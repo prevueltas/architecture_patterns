@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import date
+from typing import Optional
 
 
 class OutOfStock(Exception):
@@ -26,12 +27,12 @@ class Customer:
 
 @dataclass(frozen=True)
 class OrderLine:
+    order_id: str
     sku: str
     quantity: int
-    order: Order
 
     def __repr__(self):
-        return f"<OrderLine {self.sku} of {self.order}>"
+        return f"<OrderLine {self.sku} of Order {self.order_id}>"
 
 
 @dataclass
@@ -45,12 +46,21 @@ class Order:
 
 
 class Batch:
-    def __init__(self, reference: str, sku: str, quantity: int, eta: date):
+    def __init__(self, reference: str, sku: str, quantity: int, eta: Optional[date]):
         self.reference = reference
         self.sku = sku
         self.purchased_quantity = quantity
         self.eta = eta
-        self.lines = []
+        self.lines = set()
+
+    def __eq__(self, other):
+        if not isinstance(other, Batch):
+            return False
+        else:
+            return self.reference == other.reference
+
+    def __hash__(self):
+        return hash(self.reference)
 
     def __gt__(self, other):
         if self.eta is None:
@@ -66,7 +76,7 @@ class Batch:
     def available_quantity(self):
         return self.purchased_quantity - sum([line.quantity for line in self.lines])
 
-    def can_allocate(self, line: OrderLine):
+    def can_allocate(self, line: OrderLine) -> bool:
         if self.sku == line.sku and self.available_quantity >= line.quantity:
             return True
         else:
@@ -79,12 +89,12 @@ class Batch:
         else:
             if line in self.lines:
                 raise DuplicatedOrderLine(f"Duplicated OrderLine {line} in {self}")
-            self.lines.append(line)
+            self.lines.add(line)
 
     def deallocate(self, line: OrderLine):
         try:
             self.lines.remove(line)
-        except ValueError:
+        except KeyError:
             raise LineNotFound
 
 

@@ -24,7 +24,7 @@ def test_can_allocate_if_available_greater_than_required(batch, line):
 
 def test_cannot_allocate_if_available_smaller_than_required(batch, order):
     with pytest.raises(NotEnoughStock):
-        line = OrderLine('TABLE_NIZA', 11, order)
+        line = OrderLine('ORDER-REFERENCE', 'TABLE_NIZA', 11)
         batch.allocate(line)
 
 
@@ -35,5 +35,5 @@ def test_a_batch_cant_allocate_twice_the_same_line(batch, line):
 
 
 def test_can_allocate_if_available_equal_to_required(batch, order):
-    line = OrderLine('SKU-001', batch.purchased_quantity, order)
+    line = OrderLine('ORDER-REF0001', 'SKU-001', batch.purchased_quantity)
     batch.allocate(line)
