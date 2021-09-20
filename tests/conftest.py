@@ -31,3 +31,8 @@ def line(order):
 @pytest.fixture
 def customer():
     return Customer()
+
+
+@pytest.fixture
+def session():
+    return 'session'
