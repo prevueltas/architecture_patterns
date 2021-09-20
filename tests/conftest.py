@@ -1,6 +1,9 @@
 import copy
 import pytest
+from sqlalchemy import create_engine
 from model.model import *
+from repository.orm import metadata, start_mappers
+from sqlalchemy.orm import sessionmaker, clear_mappers
 
 
 @pytest.fixture
@@ -34,5 +37,16 @@ def customer():
 
 
 @pytest.fixture
-def session():
-    return 'session'
+def in_memory_db():
+    engine = create_engine("sqlite:///:memory:")
+    metadata.create_all(engine)
+    return engine
+
+
+@pytest.fixture
+def session(in_memory_db):
+    start_mappers()
+    # create a configured "Session" class
+    Session = sessionmaker(bind=in_memory_db)
+    yield Session()
+    clear_mappers()

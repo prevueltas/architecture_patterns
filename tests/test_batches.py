@@ -4,7 +4,7 @@ import pytest
 
 def test_allocating_to_a_batch_reduces_the_available_quantity(batch, line):
     batch.allocate(line)
-    assert batch.available_quantity == batch.purchased_quantity - line.quantity
+    assert batch.available_quantity == batch.purchased_quantity - line.qty
 
 
 def test_deallocating_to_a_batch_increases_the_available_quantity(batch, line):

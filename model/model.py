@@ -25,11 +25,11 @@ class Customer:
     pass
 
 
-@dataclass(frozen=True)
+@dataclass(unsafe_hash=True)
 class OrderLine:
     order_id: str
     sku: str
-    quantity: int
+    qty: int
 
     def __repr__(self):
         return f"<OrderLine {self.sku} of Order {self.order_id}>"
@@ -74,16 +74,16 @@ class Batch:
 
     @property
     def available_quantity(self):
-        return self.purchased_quantity - sum([line.quantity for line in self.lines])
+        return self.purchased_quantity - sum([line.qty for line in self.lines])
 
     def can_allocate(self, line: OrderLine) -> bool:
-        if self.sku == line.sku and self.available_quantity >= line.quantity:
+        if self.sku == line.sku and self.available_quantity >= line.qty:
             return True
         else:
             return False
 
     def allocate(self, line: OrderLine):
-        if self.available_quantity < line.quantity:
+        if self.available_quantity < line.qty:
             raise NotEnoughStock(
                 f"There is not enough stock in this {self} to serve the OrderLine {line}")
         else:
