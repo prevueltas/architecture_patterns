@@ -8,15 +8,13 @@ from sqlalchemy.orm import sessionmaker, clear_mappers
 
 @pytest.fixture
 def batch():
-    return Batch(reference='BATCH-01', sku='TABLE-NIZA', quantity=10, eta=date.today())
+    return Batch(reference='BATCH-01', sku='TABLE-NIZA', purchased_qty=10, eta=date.today())
 
 
 @pytest.fixture
-def make_batch(batch):
+def make_batch():
     def _make_batch(eta) -> Batch:
-        b = copy.copy(batch)
-        b.eta = eta
-        return b
+        return Batch(reference='BATCHREF01', sku='TABLE-NIZA', purchased_qty=10, eta=eta)
 
     return _make_batch
 

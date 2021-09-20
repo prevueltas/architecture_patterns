@@ -46,12 +46,12 @@ class Order:
 
 
 class Batch:
-    def __init__(self, reference: str, sku: str, quantity: int, eta: Optional[date]):
+    def __init__(self, reference: str, sku: str, purchased_qty: int, eta: Optional[date] = None):
         self.reference = reference
         self.sku = sku
-        self.purchased_quantity = quantity
+        self._purchased_qty = purchased_qty
         self.eta = eta
-        self.lines = set()
+        self._lines = set()
 
     def __eq__(self, other):
         if not isinstance(other, Batch):
@@ -73,27 +73,27 @@ class Batch:
         return f"<Batch {self.reference}>"
 
     @property
-    def available_quantity(self):
-        return self.purchased_quantity - sum([line.qty for line in self.lines])
+    def available_qty(self):
+        return self._purchased_qty - sum([line.qty for line in self._lines])
 
     def can_allocate(self, line: OrderLine) -> bool:
-        if self.sku == line.sku and self.available_quantity >= line.qty:
+        if self.sku == line.sku and self.available_qty >= line.qty:
             return True
         else:
             return False
 
     def allocate(self, line: OrderLine):
-        if self.available_quantity < line.qty:
+        if self.available_qty < line.qty:
             raise NotEnoughStock(
                 f"There is not enough stock in this {self} to serve the OrderLine {line}")
         else:
-            if line in self.lines:
+            if line in self._lines:
                 raise DuplicatedOrderLine(f"Duplicated OrderLine {line} in {self}")
-            self.lines.add(line)
+            self._lines.add(line)
 
     def deallocate(self, line: OrderLine):
         try:
-            self.lines.remove(line)
+            self._lines.remove(line)
         except KeyError:
             raise LineNotFound
 

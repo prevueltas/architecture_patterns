@@ -1,16 +1,31 @@
 from model.model import *
 
 
-def test_order_line_mapper_can_load_lines(session):
-    session.execute(
-        "INSERT INTO order_lines (order_id, sku, qty) VALUES "
-        '("order1", "RED-CHAIR", 12),'
-        '("order1", "RED-TABLE", 13),'
-        '("order2", "BLUE-LIPSTICK", 14)'
-    )
-    expected = [
-        OrderLine("order1", "RED-CHAIR", 12),
-        OrderLine("order1", "RED-TABLE", 13),
-        OrderLine("order2", "BLUE-LIPSTICK", 14)
-    ]
-    assert session.query(OrderLine).all() == expected
+def test_order_line_mapper_can_save_lines(session, line):
+    session.add(line)
+    session.commit()
+
+
+def test_order_line_mapper_can_load_lines(session, line):
+    session.add(line)
+    session.commit()
+    assert [line] == list(session.query(OrderLine).all())
+
+
+def test_batch_mapper_can_save_batches(session, batch):
+    session.add(batch)
+    session.commit()
+
+
+def test_batch_mapper_can_load_batches(session, batch):
+    session.add(batch)
+    session.commit()
+    assert [batch] == list(session.query(Batch).all())
+
+
+def test_saving_allocation(session, batch, line):
+    batch.allocate(line)
+    session.add(batch)
+    session.commit()
+    batch2 = session.query(Batch).filter_by(reference=batch.reference).one()
+    assert len(batch2._lines) == 1
